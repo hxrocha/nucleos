@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import Classe.Produto;
+import Classe.RetornoDoDAO;
 
 /**
  *
@@ -26,39 +27,50 @@ public class ClienteDAO extends AcessoMySQL {
         this.getConnection();
         
     }
-    public void insereNovoCliente(Cliente cliente){
+    public RetornoDoDAO insereNovoCliente(Cliente cliente){
+        RetornoDoDAO retornoDoDAO;
         try {
             cliente.setCodigoDoCliente(this.GetNextId("cliente","codcliente"));
             String sql = "insert into cliente(codcliente,nome,telefone) values(?,?,?)";
             this.executeCommand(sql,cliente.getCodigoDoCliente(),cliente.getNomeDoCliente(),cliente.getTelefoneDoCliente());
+            retornoDoDAO = new RetornoDoDAO(true,"Cliente inserido com sucesso!");
+            return(retornoDoDAO);
         } catch (SQLException ex) {
-            System.out.println("Erro : "+ex.getMessage());
+            retornoDoDAO = new RetornoDoDAO(false,"Ao inserir novo cliente \n Erro: "+ex.getMessage());
         }
+        return(retornoDoDAO);
     }
     
-    public void atualizaCliente(Cliente cliente){
+    public RetornoDoDAO atualizaCliente(Cliente cliente){
+    RetornoDoDAO retornoDoDAO;
     String sql = "update cliente set nome = ?, telefone = ? "
             + "where codcliente = ?";
-        try {
+    try {
             this.executeCommand(sql,cliente.getNomeDoCliente(),cliente.getTelefoneDoCliente()
-                    ,cliente.getCodigoDoCliente());
+            ,cliente.getCodigoDoCliente());
+            retornoDoDAO = new RetornoDoDAO(true,"Cliente atualizado com sucesso!");
+            return(retornoDoDAO);
         } catch (SQLException ex) {
-            System.out.println("Erro : "+ex.getMessage());
+            retornoDoDAO = new RetornoDoDAO(false,"Ao atualizar o cliente \n Erro: "+ex.getMessage());
         }
+        return(retornoDoDAO);
     }
     
-    public void apagarCliente(int codigoDoCliente){
-    String sql = "delete from cliente where codcliente = ?";
+    public RetornoDoDAO apagarCliente(int codigoDoCliente){
+        RetornoDoDAO retornoDoDAO;
+        String sql = "delete from cliente where codcliente = ?";
         try {
             this.executeCommand(sql,codigoDoCliente);
+            retornoDoDAO = new RetornoDoDAO(true,"Cliente apagado com sucesso!");
+            return(retornoDoDAO);
         } catch (SQLException ex) {
-            System.out.println("Erro: "+ex.getMessage());
+            retornoDoDAO = new RetornoDoDAO(false,"Ao apagar o cliente \n Erro: "+ex.getMessage());
         }
-    
+        return(retornoDoDAO);
     }
     
     public List <Cliente> pegaTodosClientes() throws SQLException{
-         List <Cliente> retorno = new LinkedList<Cliente>();
+        List <Cliente> retorno = new LinkedList<Cliente>();
         String sql = "select * from cliente order by codcliente desc";
         ResultSet rs = this.executeQuery(sql);
         while(rs.next()){
